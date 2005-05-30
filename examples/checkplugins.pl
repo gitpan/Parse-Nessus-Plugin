@@ -45,6 +45,7 @@ while(defined(my $file = readdir(DIR))) {
   print $file,"\n";
   print " ID: ".$plugin->id."\n" if $plugin->id;
   print " NAME: ".$plugin->name."\n" if $plugin->name;
+  print " VERSION: ".$plugin->version."\n" if $plugin->version;
   print " FAMILY: ".$plugin->family."\n" if $plugin->family;
   print " CATEGORY: ".$plugin->category."\n" if $plugin->category;
   print " RISK: ".$plugin->risk."\n" if $plugin->risk;

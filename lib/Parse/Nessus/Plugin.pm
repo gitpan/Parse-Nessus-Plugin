@@ -13,7 +13,7 @@ package Parse::Nessus::Plugin;
 
 require 5.004;
 
-$VERSION = '0.1';
+$VERSION = '0.2';
 
 use strict;
 use warnings;
@@ -279,6 +279,43 @@ sub bugtraq {
   }
 }
 
+=item Method B<version>
+
+Usage :
+
+  my $version = $plugin->version;
+
+This method returns the version of the current plugin.
+
+=cut
+sub version {
+  my $self = shift || undef;
+  if(!$self) {
+    return undef;
+  }
+
+  $self->cleanerror;
+
+  my $file = $self->{FILE} || undef;
+  if(!$file || $file eq '') {
+    $self->error('NO_FILE');
+    return undef;
+  }
+
+  if($file =~ /script\_version\s*\(\s*(\"|\')([^\1\)]*)\1\s*\)\s*\;/mo) {
+    my $version = $2;
+    $version =~ s/\$//go;
+    if(!$version || $version eq '') {
+      $self->error('NO_VERSION');
+      return undef;
+    }
+    return $version;
+  } else {
+    $self->error('NO_VERSION');
+    return undef;
+  }
+}
+
 =item Method B<name>
 
 Usage :
@@ -391,10 +428,10 @@ sub description {
     return undef;
   }
 
-  if($file =~ /desc\[\"english\"\]\s*\=\s*\"([^\"]*)\"\s*\;/mo) {
-    my $desc = $1;
-    if($desc =~ /\bSolution\s*:\s*/sio) {
-      $desc =~ s/Solution\s*:\s*.*//sio;
+  if($file =~ /desc\[\"english\"\]\s*\=\s*(\"|\')([^\1\;]*)\1\s*\;/so) {
+    my $desc = $2;
+    if($desc =~ /\bSolutions?\s*:\s*/sio) {
+      $desc =~ s/Solutions?\s*:\s*.*//sio;
     }
     if($desc =~ /\bSee also\s*:\s*/sio) {
       $desc =~ s/See also\s*:\s*.*//sio;
@@ -414,10 +451,79 @@ sub description {
       return undef;
     }
     return $desc;
-  } elsif ($file =~ /script\_description\s*\(.*english\:\s*\"([^\"]*)\"\s*,?/mo) {
-    my $desc = $1;
-    if($desc =~ /\bSolution\s*:\s*/sio) {
-      $desc =~ s/Solution\s*:\s*.*//sio;
+  } elsif ($file =~ /desc\s*\=\s*string\s*\((\"|\')([^\1\)]*)\1\)\s*\;/so) {
+    my $desc = $2;
+    if($desc =~ /\bSolutions?\s*:\s*/sio) {
+      $desc =~ s/Solutions?\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bSee also\s*:\s*/sio) {
+      $desc =~ s/See also\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
+      $desc =~ s/Risk Factor\s*:\s*.*//sio;
+    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
+      $desc =~ s/Risk\s*:\s*.*//sio;
+    }
+    $desc =~ s/^\s*//o;
+    $desc =~ s/\s*$//o;
+    $desc =~ s/\"$//go;
+    $desc =~ s/^\"//go;
+    $desc =~ s/;$//go;
+    if(!$desc || $desc eq '') {
+      $self->error('NO_DESCRIPTION');
+      return undef;
+    }
+    return $desc;
+  } elsif ($file =~ /desc\s*\=\s*(\"|\')([^\1]*)\1\s*\;/so) {
+    my $desc = $2;
+    if($desc =~ /\bSolutions?\s*:\s*/sio) {
+      $desc =~ s/Solutions?\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bSee also\s*:\s*/sio) {
+      $desc =~ s/See also\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
+      $desc =~ s/Risk Factor\s*:\s*.*//sio;
+    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
+      $desc =~ s/Risk\s*:\s*.*//sio;
+    }
+    $desc =~ s/^\s*//o;
+    $desc =~ s/\s*$//o;
+    $desc =~ s/\"$//go;
+    $desc =~ s/^\"//go;
+    $desc =~ s/;$//go;
+    if(!$desc || $desc eq '') {
+      $self->error('NO_DESCRIPTION');
+      return undef;
+    }
+    return $desc;
+  } elsif ($file =~ /script\_description\s*\(.*english\:\s*string\s*\(\s*(\"|\')([^\1\)]*)\1\s*\),?/so) {
+    my $desc = $2;
+    if($desc =~ /\bSolutions?\s*:\s*/sio) {
+      $desc =~ s/Solutions?\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bSee also\s*:\s*/sio) {
+      $desc =~ s/See also\s*:\s*.*//sio;
+    }
+    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
+      $desc =~ s/Risk Factor\s*:\s*.*//sio;
+    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
+      $desc =~ s/Risk\s*:\s*.*//sio;
+    }
+    $desc =~ s/^\s*//o;
+    $desc =~ s/\s*$//o;
+    $desc =~ s/\"$//go;
+    $desc =~ s/^\"//go;
+    $desc =~ s/;$//go;
+    if(!$desc || $desc eq '') {
+      $self->error('NO_DESCRIPTION');
+      return undef;
+    }
+    return $desc;
+  } elsif ($file =~ /script\_description\s*\(.*english\:\s*([^\"\']*)(\"|\')([^\1\)]*)\1\s*,?/sxo) {
+    my $desc = $3;
+    if($desc =~ /\bSolutions?\s*:\s*/sio) {
+      $desc =~ s/Solutions?\s*:\s*.*//sio;
     }
     if($desc =~ /\bSee also\s*:\s*/sio) {
       $desc =~ s/See also\s*:\s*.*//sio;
@@ -466,8 +572,9 @@ sub solution {
     return undef;
   }
 
-  if($file =~ /\bSolution\s*:\s*([^\"]*)\"\;/sio) {
+  if($file =~ /\bSolutions?\s*:\s*([^\;]*)(\"|\')\s*\;/sio) {
     my $sol = $1;
+    $sol =~ s/$2\s*;//sgo;
     if($sol =~ /\bSee also\s*:\s*/sio) {
       $sol =~ s/See also\s*:\s*.*//sio;
     }
