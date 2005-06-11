@@ -42,7 +42,7 @@ while(defined(my $file = readdir(DIR))) {
     print "There were an error. Reason: $file isn't a .nasl plugin\n";
     next;
   }
-  print $file,"\n";
+  print $plugin->filename,"\n";
   print " ID: ".$plugin->id."\n" if $plugin->id;
   print " NAME: ".$plugin->name."\n" if $plugin->name;
   print " VERSION: ".$plugin->version."\n" if $plugin->version;

@@ -32,7 +32,7 @@ if(!$plugin->parse_file($FILE)) {
   print "There were an error. Reason: $FILE isn't a .nasl plugin\n";
   exit -1;
 }
-print $FILE,"\n";
+print $plugin->filename,"\n";
 print " ID: ".$plugin->id."\n" if $plugin->id;
 print " NAME: ".$plugin->name."\n" if $plugin->name;
 print " VERSION: ".$plugin->version."\n" if $plugin->version;

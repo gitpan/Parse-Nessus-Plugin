@@ -7,13 +7,13 @@
 # This program is free software; you can redistribute it and/or
 # modify it under the same terms as Perl itself.
 #
-# May 2005. Antofagasta, Chile.
+# June 2005. Antofagasta, Chile.
 #
 package Parse::Nessus::Plugin;
 
 require 5.004;
 
-$VERSION = '0.2';
+$VERSION = '0.3';
 
 use strict;
 use warnings;
@@ -69,6 +69,7 @@ sub new {
 		 ERROR => '',
 		 NASL => 1, # By now we only allow .nasl files
 		 FILE => '',
+		 FILENAME => '',
 		 PLUGIN_ID => '',
 	       };
   bless $objref, $class;
@@ -94,12 +95,15 @@ sub parse_file {
   }
 
   $self->clean;
+  $self->cleanfilename;
 
   my $namefile = shift || undef;
   if(!$namefile) {
     $self->error('NO_FILE');
     return undef;
   }
+
+  $self->filename($namefile);
 
   my $file = '';
   # Open file
@@ -197,6 +201,36 @@ sub id {
   } else {
     if(exists $self->{PLUGIN_ID} && $self->{PLUGIN_ID} ne '') {
       return $self->{PLUGIN_ID};
+    } else {
+      return undef;
+    }
+  }
+}
+
+=item Method B<filename>
+
+Usage :
+
+  my $filename = $plugin->filename;
+
+This method returns the name of the plugin's file (only if you used B<parse_file> method).
+
+=cut
+sub filename {
+  my $self = shift || undef;
+  if(!$self) {
+    return undef;
+  }
+
+  $self->cleanerror;
+
+  if(@_) {
+    my $filename = shift @_;
+    $filename =~ /([^\/]*)$/;
+    $self->{FILENAME} = $1;
+  } else {
+    if(exists $self->{FILENAME} && $self->{FILENAME} ne '') {
+      return $self->{FILENAME};
     } else {
       return undef;
     }
@@ -846,6 +880,17 @@ sub rawerror {
   }
 }
 
+sub cleanfilename {
+  my $self = shift || undef;
+  if(!defined $self) {
+    return undef;
+  }
+
+  $self->{FILENAME} = '';
+
+  return 1;
+}
+
 sub cleanerror {
   my $self = shift || undef;
   if(!defined $self) {
@@ -877,7 +922,7 @@ sub clean {
 
 =head1 EXAMPLE
 
-  # This example takes a .nasl file and prints its plugin id, name and CVE list
+  # This example takes a .nasl file and prints its file name, plugin id, name and CVE list
   use Parse::Nessus::Plugin;
 
   my $plugin = Parse::Nessus::Plugin->new;
@@ -889,6 +934,7 @@ sub clean {
     die ("There were an error. Reason: ".$plugin->error);
   }
 
+  print "FILENAME:".$plugin->filename."\n";
   print "PLUGIN ID:".$plugin->id."\n";
   print "NAME:".$plugin->name."\n";
   my $cve = $plugin->cve;
