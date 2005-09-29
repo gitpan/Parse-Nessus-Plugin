@@ -13,7 +13,7 @@ package Parse::Nessus::Plugin;
 
 require 5.004;
 
-$VERSION = '0.3';
+$VERSION = '0.4';
 
 use strict;
 use warnings;
@@ -462,125 +462,60 @@ sub description {
     return undef;
   }
 
-  if($file =~ /desc\[\"english\"\]\s*\=\s*(\"|\')([^\1\;]*)\1\s*\;/so) {
-    my $desc = $2;
-    if($desc =~ /\bSolutions?\s*:\s*/sio) {
-      $desc =~ s/Solutions?\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bSee also\s*:\s*/sio) {
-      $desc =~ s/See also\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
-      $desc =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
-      $desc =~ s/Risk\s*:\s*.*//sio;
-    }
-    $desc =~ s/^\s*//o;
-    $desc =~ s/\s*$//o;
-    $desc =~ s/\"$//go;
-    $desc =~ s/^\"//go;
-    $desc =~ s/;$//go;
-    if(!$desc || $desc eq '') {
-      $self->error('NO_DESCRIPTION');
-      return undef;
-    }
-    return $desc;
-  } elsif ($file =~ /desc\s*\=\s*string\s*\((\"|\')([^\1\)]*)\1\)\s*\;/so) {
-    my $desc = $2;
-    if($desc =~ /\bSolutions?\s*:\s*/sio) {
-      $desc =~ s/Solutions?\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bSee also\s*:\s*/sio) {
-      $desc =~ s/See also\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
-      $desc =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
-      $desc =~ s/Risk\s*:\s*.*//sio;
-    }
-    $desc =~ s/^\s*//o;
-    $desc =~ s/\s*$//o;
-    $desc =~ s/\"$//go;
-    $desc =~ s/^\"//go;
-    $desc =~ s/;$//go;
-    if(!$desc || $desc eq '') {
-      $self->error('NO_DESCRIPTION');
-      return undef;
-    }
-    return $desc;
-  } elsif ($file =~ /desc\s*\=\s*(\"|\')([^\1]*)\1\s*\;/so) {
-    my $desc = $2;
-    if($desc =~ /\bSolutions?\s*:\s*/sio) {
-      $desc =~ s/Solutions?\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bSee also\s*:\s*/sio) {
-      $desc =~ s/See also\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
-      $desc =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
-      $desc =~ s/Risk\s*:\s*.*//sio;
-    }
-    $desc =~ s/^\s*//o;
-    $desc =~ s/\s*$//o;
-    $desc =~ s/\"$//go;
-    $desc =~ s/^\"//go;
-    $desc =~ s/;$//go;
-    if(!$desc || $desc eq '') {
-      $self->error('NO_DESCRIPTION');
-      return undef;
-    }
-    return $desc;
-  } elsif ($file =~ /script\_description\s*\(.*english\:\s*string\s*\(\s*(\"|\')([^\1\)]*)\1\s*\),?/so) {
-    my $desc = $2;
-    if($desc =~ /\bSolutions?\s*:\s*/sio) {
-      $desc =~ s/Solutions?\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bSee also\s*:\s*/sio) {
-      $desc =~ s/See also\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
-      $desc =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
-      $desc =~ s/Risk\s*:\s*.*//sio;
-    }
-    $desc =~ s/^\s*//o;
-    $desc =~ s/\s*$//o;
-    $desc =~ s/\"$//go;
-    $desc =~ s/^\"//go;
-    $desc =~ s/;$//go;
-    if(!$desc || $desc eq '') {
-      $self->error('NO_DESCRIPTION');
-      return undef;
-    }
-    return $desc;
-  } elsif ($file =~ /script\_description\s*\(.*english\:\s*([^\"\']*)(\"|\')([^\1\)]*)\1\s*,?/sxo) {
-    my $desc = $3;
-    if($desc =~ /\bSolutions?\s*:\s*/sio) {
-      $desc =~ s/Solutions?\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bSee also\s*:\s*/sio) {
-      $desc =~ s/See also\s*:\s*.*//sio;
-    }
-    if($desc =~ /\bRisk Factor\s*:\s*/sio) {
-      $desc =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($desc =~ /\bRisk\s*:\s*/sio) {
-      $desc =~ s/Risk\s*:\s*.*//sio;
-    }
-    $desc =~ s/^\s*//o;
-    $desc =~ s/\s*$//o;
-    $desc =~ s/\"$//go;
-    $desc =~ s/^\"//go;
-    $desc =~ s/;$//go;
-    if(!$desc || $desc eq '') {
-      $self->error('NO_DESCRIPTION');
-      return undef;
-    }
-    return $desc;
+  my $desc = '';
+  if($file =~ /desc\[\"english\"\]\s*\=\s*\'\s*([^\']*)\'\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\[\"english\"\]\s*\=\s*\"\s*([^\"]*)\"\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\[\"english\"\]\s*\=\s*string\s*\(\s*\"\s*([^\)]*)\"\s*\)\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\[\"english\"\]\s*\=\s*string\s*\(\s*\"\s*([^\)]*)\"\s*\)\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\s*\=\s*string\s*\(\s*\"\s*([^\)]*)\"\s*\)\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\s*\=\s*string\s*\(\s*\'\s*([^\)]*)\'\s*\)\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\s*\=\s*\"\s*([^\"]*)\"\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /desc\s*\=\s*\'\s*([^\']*)\'\s*\;/so) {
+    $desc = $1;
+  } elsif ($file =~ /script\_description\s*\(.*english\:\s*string\s*\(\s*\"\s*([^\"\)]*)\"\s*\),?/so) {
+    $desc = $1;
+  } elsif ($file =~ /script\_description\s*\(.*english\:\s*string\s*\(\s*\'\s*([^\'\)]*)\'\s*\),?/so) {
+    $desc = $1;
+  } elsif ($file =~ /script\_description\s*\(\s*english\:\s*[^\"]*\"\s*([^\"\)]*)\"\s*,?/sxo) {
+    $desc = $1;
+  } elsif ($file =~ /script\_description\s*\(\s*english\:\s*[^\']*\'\s*([^\'\)]*)\'\s*,?/sxo) {
+    $desc = $1;
   } else {
     $self->error('NO_DESCRIPTION');
     return undef;
   }
+
+  # Check if we get something
+  if($desc eq '') {
+    $self->error('NO_DESCRIPTION');
+    return undef;
+  }
+
+  if($desc =~ /\bSolutions?\s*:\s*/sio) {
+    $desc =~ s/Solutions?\s*:\s*.*//sio;
+  }
+  if($desc =~ /\bSee also\s*:\s*/sio) {
+    $desc =~ s/See also\s*:\s*.*//sio;
+  }
+  if($desc =~ /\bRisk Factor\s*:\s*/sio) {
+    $desc =~ s/Risk Factor\s*:\s*.*//sio;
+  } elsif($desc =~ /\bRisk\s*:\s*/sio) {
+    $desc =~ s/Risk\s*:\s*.*//sio;
+  }
+  $desc =~ s/^\s*//o;
+  $desc =~ s/\s*$//o;
+  $desc =~ s/\"$//go;
+  $desc =~ s/^\"//go;
+  $desc =~ s/;$//go;
+
+  return $desc;
 }
 
 =item Method B<solution>
@@ -606,31 +541,37 @@ sub solution {
     return undef;
   }
 
-  if($file =~ /\bSolutions?\s*:\s*([^\;]*)(\"|\')\s*\;/sio) {
-    my $sol = $1;
-    $sol =~ s/$2\s*;//sgo;
-    if($sol =~ /\bSee also\s*:\s*/sio) {
-      $sol =~ s/See also\s*:\s*.*//sio;
-    }
-    if($sol =~ /\bRisk Factor\s*:\s*/sio) {
-      $sol =~ s/Risk Factor\s*:\s*.*//sio;
-    } elsif($sol =~ /\bRisk\s*:\s*/sio) {
-      $sol =~ s/Risk\s*:\s*.*//sio;
-    }
-    $sol =~ s/^\s*//o;
-    $sol =~ s/\s*$//o;
-    $sol =~ s/\"$//go;
-    $sol =~ s/^\"//go;
-    $sol =~ s/;$//go;
-    if(!$sol || $sol eq '') {
-      $self->error('NO_SOLUTION');
-      return undef;
-    }
-    return $sol;
+  my $sol = '';
+  if($file =~ /\bSolutions?\s*:\s*([^\"]*)\"\s*\)?\s*\;/sio) {
+    $sol = $1;
+  } elsif($file =~ /\bSolutions?\s*:\s*([^\']*)\'\s*\)?\s*\;/sio) {
+    $sol = $1;
   } else {
     $self->error('NO_SOLUTION');
     return undef;
   }
+
+  # Check if we have something
+  if($sol eq '') {
+    $self->error('NO_SOLUTION');
+    return undef;
+  }
+
+  if($sol =~ /\bSee also\s*:\s*/sio) {
+    $sol =~ s/See also\s*:\s*.*//sio;
+  }
+  if($sol =~ /\bRisk Factor\s*:\s*/sio) {
+    $sol =~ s/Risk Factor\s*:\s*.*//sio;
+  } elsif($sol =~ /\bRisk\s*:\s*/sio) {
+    $sol =~ s/Risk\s*:\s*.*//sio;
+  }
+  $sol =~ s/^\s*//o;
+  $sol =~ s/\s*$//o;
+  $sol =~ s/\"$//go;
+  $sol =~ s/^\"//go;
+  $sol =~ s/;$//go;
+
+  return $sol;
 }
 
 =item Method B<risk>
@@ -656,24 +597,24 @@ sub risk {
     return undef;
   }
 
-  if($file =~ /\bRisk Factor\s*:\s*(high|serious|medium|low|none)/mio) {
-    my $risk = $1;
-    if(!$risk || $risk eq '') {
-      $self->error('NO_RISK');
-      return undef;
-    }
-    return $risk;
-  } elsif($file =~ /\bRisk\s*:\s*(high|serious|medium|low|none)/mio) {
-    my $risk = $1;
-    if(!$risk || $risk eq '') {
-      $self->error('NO_RISK');
-      return undef;
-    }
-    return $risk;
+  my $risk = '';
+  if($file =~ /\bRisk Factor\s*:\s*(critical|high|serious|medium|low|none)/mio) {
+    $risk = $1;
+  } elsif($file =~ /\bRisk\s*:\s*(critical|high|serious|medium|low|none)/mio) {
+    $risk = $1;
   } else {
     $self->error('NO_RISK');
     return undef;
   }
+
+
+  # Check if we have something
+  if($risk eq '') {
+      $self->error('NO_RISK');
+      return undef;
+  }
+
+  return $risk;
 }
 
 =item Method B<family>
@@ -699,36 +640,30 @@ sub family {
     return undef;
   }
 
+  my $family = '';
   if($file =~ /family\[\"english\"\]\s*\=\s*\"([^\"]*)\"\s*\;/mo) {
-    my $family = $1;
-    $family =~ s/\'//go;
-    $family =~ s/\s*$//o;
-    $family =~ s/\s*$//o;
-    $family =~ s/\"$//go;
-    $family =~ s/^\"//go;
-    $family =~ s/;$//go;
-    if(!$family || $family eq '') {
-      $self->error('NO_FAMILY');
-      return undef;
-    }
-    return $family;
+    $family = $1;
   } elsif ($file =~ /script\_family\s*\(.*english\:\s*\"([^\"]*)\"\s*,?/mo) {
-    my $family = $1;
-    $family =~ s/\'//go;
-    $family =~ s/^\s*//o;
-    $family =~ s/\s*$//o;
-    $family =~ s/\"$//go;
-    $family =~ s/^\"//go;
-    $family =~ s/;$//go;
-    if(!$family || $family eq '') {
-      $self->error('NO_FAMILY');
-      return undef;
-    }
-    return $family;
+    $family = $1;
   } else {
     $self->error('NO_FAMILY');
     return undef;
   }
+
+  # Check if we have something
+  if($family eq '') {
+      $self->error('NO_FAMILY');
+      return undef;
+  }
+
+  $family =~ s/\'//go;
+  $family =~ s/^\s*//o;
+  $family =~ s/\s*$//o;
+  $family =~ s/\"$//go;
+  $family =~ s/^\"//go;
+  $family =~ s/;$//go;
+
+  return $family;
 }
 
 =item Method B<category>

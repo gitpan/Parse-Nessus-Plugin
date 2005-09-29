@@ -41,7 +41,7 @@ print " CATEGORY: ".$plugin->category."\n" if $plugin->category;
 print " RISK: ".$plugin->risk."\n" if $plugin->risk;
 print " SUMMARY: ".$plugin->summary."\n" if $plugin->summary;
 print " DESCRIPTION: ".$plugin->description."\n" if $plugin->description;
-print " SOLUTION: ".$plugin->solution."\n" if $plugin->solution;
+print " SOLUTION: ".protect($plugin->solution)."\n" if $plugin->solution;
 my $cve = $plugin->cve;
 if($cve) {
   print " CVE:\n";
@@ -60,3 +60,41 @@ print "\n\n";
 
 # Bye
 exit 0;
+
+sub protect {
+  my $msg = shift;
+  return undef unless $msg;
+
+  $msg =~ s/\'/\\\'/go if $msg =~ /[^\\]\'/;
+  $msg =~ s/\"/\\\"/go if $msg =~ /[^\\]\"/;
+  $msg =~ s/\(/\\\(/go if $msg =~ /[^\\]\(/;
+  $msg =~ s/\)/\\\)/go if $msg =~ /[^\\]\)/;
+  $msg =~ s/\//\\\//go if $msg =~ /[^\\]\//;
+  #$msg =~ s/\:/\\\:/go;
+  #$msg =~ s/\=/\\\=/go;
+  #$msg =~ s/\?/\\\?/go;
+  #$msg =~ s/\\/\\\\/go;
+
+  return nltobr(NtoA($msg));
+}
+
+sub nltobr {
+  my $msg = shift;
+  return undef unless $msg;
+
+  $msg =~ s/\n/\<br\>/go;
+  return $msg;
+}
+
+sub NtoA {
+  my $msg = shift;
+  return undef unless $msg;
+
+  $msg =~ s/nessus\.org/confianze\.com/go;
+  $msg =~ s/example\.com/confianze\.com/go;
+  $msg =~ s/nessus/analyze/go;
+  $msg =~ s/Nessus/Analyze/go;
+
+  return $msg;
+}
+
