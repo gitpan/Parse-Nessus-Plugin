@@ -757,6 +757,73 @@ sub is_nasl {
   }
 }
 
+=item Method B<register_service>
+
+Usage :
+
+  my $is_fs = $plugin->register_service;
+
+This method returns True if the plugin registers a service or False if it doesn't
+
+=cut
+sub register_service {
+  my $self = shift || undef;
+  if(!$self) {
+    return undef;
+  }
+
+  $self->cleanerror;
+
+  my $file = $self->{FILE} || undef;
+  if(!$file || $file eq '') {
+    $self->error('NO_FILE');
+    return undef;
+  }
+
+  if($file =~ /register\_service/mo) {
+    return 1;
+  }
+
+  $self->error('NO_REGISTER_SERVICE');
+  return 0;
+}
+
+=item Method B<register_service_proto>
+
+Usage:
+
+  my $proto = $plugin->register_service_proto;
+
+This method return the 'proto' argument of a call to the register_service function
+
+=cut
+sub register_service_proto {
+  my $self = shift || undef;
+  if(!$self) {
+    return undef;
+  }
+
+  $self->cleanerror;
+
+  my $file = $self->{FILE} || undef;
+  if(!$file || $file eq '') {
+    $self->error('NO_FILE');
+    return undef;
+  }
+
+  if($self->register_service) {
+    $file =~ /register\_service\s*\(\s*.*proto\:\s*\"([^\"]*)\"/mo;
+    if(!$1 || $1 eq '') {
+      $self->error('NO_REGISTER_SERVICE_PROTO');
+      return undef;
+    }
+    return $1;
+  }
+
+  $self->error('NO_REGISTER_SERVICE');
+  return undef;
+}
+
 =item Method B<error>
 
 Usage :
@@ -779,6 +846,8 @@ List of errors:
   NO_FAMILY: The current plugin hasn't a script_family field.
   NO_CATEGORY: The current plugin hasn't a script_category field.
   NO_COPYRIGHT: The current plugin hasn't a script_copyright field.
+  NO_REGISTER_SERVICE: The current plugin doesn't execute the register_service function
+  NO_REGISTER_SERVICE_PROTO: The current plugin does execute the register_service function but it doesn't specify a proto
 
 =cut
 sub error {
@@ -884,7 +953,7 @@ Check the examples directory to see more examples.
 
 =head1 BUGS
 
-There isn't reported bugs yet, but that doesn't mean that there aren't ;) .
+There aren't reported bugs yet, but that doesn't mean that it's free of them :)
 
 =head1 AUTHOR
 
@@ -892,7 +961,7 @@ Roberto Alamos Moreno <ralamosm@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Roberto Alamos Moreno. All rights reserved.
+Copyright (c) 2005-2007 Roberto Alamos Moreno. All rights reserved.
 This program is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut

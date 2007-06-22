@@ -42,6 +42,14 @@ print " RISK: ".$plugin->risk."\n" if $plugin->risk;
 print " SUMMARY: ".$plugin->summary."\n" if $plugin->summary;
 print " DESCRIPTION: ".$plugin->description."\n" if $plugin->description;
 print " SOLUTION: ".protect($plugin->solution)."\n" if $plugin->solution;
+
+my $is_fs = 'No';
+if($plugin->register_service) {
+  my $protofs = $plugin->register_service_proto;
+  $is_fs = 'Yes. Service: '.$protofs."\n";
+}
+print " IS FS: ".$is_fs."\n";
+
 my $cve = $plugin->cve;
 if($cve) {
   print " CVE:\n";
